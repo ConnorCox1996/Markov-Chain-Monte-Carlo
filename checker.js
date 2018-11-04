@@ -17,3 +17,22 @@ var target = matrix[0][3];
 //console.log(target);
 
 //
+function iter(M) {
+    var rows = Math.round(Math.sqrt(M));
+    var count = 0
+    var disp = [];
+    if(M<1) throw "Error"    
+        for(var i = 0; i < rows+1; i++){
+            for(var j = 0; j < rows; j++){
+                var point = [i,j];    
+                disp.push(point);
+                count++;
+                if( count == M ) {
+                return disp;
+                };
+            };
+        };
+        return disp;
+};
+console.log(iter(3)[0]);
+console.log([0,0])

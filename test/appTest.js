@@ -6,28 +6,16 @@
 -->NEED to add good comments into code
 */
 const assert = require('chai').assert;
-const initialPointGen = require('../app').initialPointGen
+const jsnx = require('jsnetworkx')
 const interPointDistance = require('../app').interPointDistance
 const graphGen = require('../app').graphGen
 const nodeCoords = require('../app').nodeCoords
-const listOfLeftEdges = require('../app').listOfLeftEdges
-const listOfTopEdges = require('../app').listOfTopEdges
-const listOfBottomEdges = require('../app').listOfBottomEdges
-const checkPerimeterConnection = require('../app').checkPerimeterConnection
+const matrixGenerator = require('../app').matrixGenerator
+const nodeDistanceMatrix = require('../app').nodeDistanceMatrix
+const addEdge = require('../app').addEdge
+const adjacencyMatrix = require('../app').adjacencyMatrix
+const connected = require('../app').connected
 
-
-/*
-describe('initialPointGen', function(){
-    it('initialPointGen should take input M and create arrays listing x&y coordinates for M number of points', function(){
-        var initialPoints = initialPointGen(5);
-        var xLength = initialPoints[0].length;
-        var yLength = initialPoints[1].length;
-                
-        assert.equal(xLength, 5);
-        assert.equal(yLength,5);
-    });
-});
-*/
 
 describe('nodeCoords', function(){
     it('nodeCoords takes an input M, and generates the coordinates a quasi-grid of M nodes', function(){
@@ -73,60 +61,74 @@ describe('graphGen', function(){
     });
 });
 
-describe('listOfLeftEdges', function(){
-    it('listOfLeftEdges takes as an input a list of node coordinates & determines edges at the left perimeter of the quasi-grid', function(){
-        var smallList = [[0, 0], [0, 1], [1, 0], [1, 1]];
-        var largeList = nodeCoords(64);
-        var smallListLeftEdges = 1;
-        var largeListLeftEdges = 7;
-        var smallResult = listOfLeftEdges(smallList).length;
-        var largeResult = listOfTopEdges(largeList).length
+describe('matrixGenerator', function(){
+    it('matrixGenerator takes as an input a list of node coordinates, and makes a matrix of those nodes', function(){
+        var matrix = matrixGenerator([0, 1, 2, 3]);
+        var result = [[0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3], [0, 1, 2, 3]];
 
-
-        assert.equal(smallResult, smallListLeftEdges);
-        assert.equal(largeResult, largeListLeftEdges);
+        assert.deepEqual(matrix, result);
     });
 });
 
-describe('listOfTopEdges', function(){
-    it('listofTopEdges takes as an input a list of node coordinates & determines edges at the top perimeter of the quasi-grid', function(){
-        var gridList = [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]];
-        var incompleteGridList = [[0,0],[0,1],[1,0],[1,1],[2,0]];
-        var gridTopEdges = 2;
-        var incompleteGridTopEdges = 1;
-        var gridResult = listOfTopEdges(gridList).length;
-        var incompleteGridResult = listOfTopEdges(incompleteGridList).length;
+describe('nodeDistanceMatrix', function(){
+    it('nodeDistanceMatrix takes as an input a graph, and the set of node coordinates associated with that graph, it calculates the distance between all nodes in the graph and stores them in a matrix', function(){
+        var graph = [0, 1, 2, 3];
+        var coords = [[0, 0], [0, 1], [1, 0], [1, 1]];
+        var matrix = nodeDistanceMatrix(graph, coords);
+        var columnOneExpected = [0, 1, 1, Math.sqrt(2)];
 
-        assert.equal(gridResult, gridTopEdges);
-        assert.equal(incompleteGridResult, incompleteGridTopEdges);
+        assert.deepEqual(columnOneExpected, matrix[0]);
+    });
+});
+
+describe('addEdge', function(){
+    it('addEdge takes as an input a graph which edges will be added to & a list of edge to be added', function(){
+        var weightMatrix = [ [ 0, 1, 1, 1.4142135623730951 ], [ 1, 0, 1.4142135623730951, 1 ], [ 1, 1.4142135623730951, 0, 1 ], [ 1.4142135623730951, 1, 1, 0 ] ];
+        var initialEdgeList = [[0, 1], [0, 2], [1, 3], [2, 3], [1,2]];
+        var unalteredEdgelist = [[0, 1], [0, 2], [1, 3], [2, 3], [1,2]];
+        var G = new jsnx.Graph();
+        var result = addEdge(G, initialEdgeList);
+        var edges = G.edges();
+        
+        assert.equal(weightMatrix[0][3], Math.sqrt(2));        
+        assert.equal(weightMatrix[1][3], 1);
+        assert.equal(weightMatrix[2][3], 1);
+        assert.equal(weightMatrix[3][3], 0);
+
+        assert.deepEqual(edges[0], unalteredEdgelist[0]);
+        assert.deepEqual(edges[1], unalteredEdgelist[1]);
+        assert.deepEqual(edges[2], unalteredEdgelist[4]);
+        assert.deepEqual(edges[3], unalteredEdgelist[2]);
+        assert.deepEqual(edges[4], unalteredEdgelist[3]);        
         
     });
 });
 
-describe('listOfBottomEdges', function(){
-    it('listOfRightEdges takes as an input a list of node coordinates & determines edges at the bottom perimeter of the quasi-grid', function(){
-        var smallList = [[0, 0], [0, 1], [1, 0], [1, 1]];
-        var largeList = nodeCoords(64);
-        var smallListLeftEdges = 1;
-        var largeListLeftEdges = 7;
-        var smallResult = listOfBottomEdges(smallList).length;
-        var largeResult = listOfBottomEdges(largeList).length
-
-
-        assert.equal(smallResult, smallListLeftEdges);
-        assert.equal(largeResult, largeListLeftEdges);
+describe('adjacencyMatrix', function(){
+    it('adjacencyMatrix takes as an input a list of edges which inlcudes the weight of each edge & generates an adjacency matrix from that list', function(){
+        var edgelist1 = [[0,1,1], [0,2,1], [1,3,5], [2,3,1], [1,2,1]];
+        var expect1 = [[0,1,1,0], [1,0,1,5], [1,1,0,1], [0,5,1,0]];
+        var result1 = adjacencyMatrix(edgelist1);
+        var edgelist2 = [[0,1,1], [2,3,1]];
+        var expect2 = [[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]];
+        var result2 = adjacencyMatrix(edgelist2);
+        
+        assert.deepEqual(expect1, result1);
+        assert.deepEqual(expect2, result2);
     });
 });
 
-describe('checkPerimeterConnection', function(){
-    it('checkPerimeterConnection takes as an input a list of node coordinates & determines if edges along the top boundary connect to edges along the right boundary', function(){
-        var connectedPerimeterGraph = nodeCoords(9);
-        var resultConnected = checkPerimeterConnection(connectedPerimeterGraph);
-        var unconnectedPerimeterGraph = nodeCoords(10);
-        var resultUnconnected = checkPerimeterConnection(unconnectedPerimeterGraph);
+describe('connected', function(){
+    it('Connected takes as an input a list of edges associated with a graph, and determines if the graph is connected', function(){
+        var connectedList = [[0,1,1],[1,2,Math.sqrt(2)],[3,2,1]];
+        var connectedAdjMat = adjacencyMatrix(connectedList);
+        var disconnectedList = [[0,1,1],[1,2,Math.sqrt(2)],[0,2,1]];
+        var disconnectedAdjMat = adjacencyMatrix(disconnectedList);
+        var connectExpect = connected(connectedList, connectedAdjMat);
+        var disconnectExpect = connected(disconnectedList, disconnectedAdjMat);
 
+        assert.equal(connectExpect, true);
+        assert.equal(disconnectExpect, false);
 
-        //assert.equal(resultConnected, []);
-        assert.equal(resultUnconnected, [8, 9]);
     });
 });

@@ -10,6 +10,7 @@ I get errors in my point distance generator
 
 /*Takes as input M number of nodes to be generated
 Generates the coordinates of M number of nodes in a quasi-grid arrangement
+                    CREATES GLOBAL COORDINATES (coordinates won't change throughout program)
 */
 function nodeCoords(M) {
     var rows = Math.round(Math.sqrt(M));
@@ -36,6 +37,7 @@ console.log(coordinates.length);
 
 /*Takes as input a list of node coordinates
 Generates a graph containing each node, and the coordinate of each node as an attribute 
+        CREATES INITIAL GRAPH
 */
 function graphGen(coordList){
     var G = new jsnx.Graph();
@@ -45,16 +47,17 @@ function graphGen(coordList){
     return G
 };
 
+
 var graph = graphGen(coordinates);
+
 console.log('generated graph');
+console.log('TARGET');
 console.log(graph.nodes());
 console.log('number of nodes');
 console.log(graph.nodes().length);
+/*
 console.log('node coordinates');
-console.log(graph.node.get(0).coordinate);
-console.log(graph.node.get(1).coordinate);
-console.log(graph.node.get(2).coordinate);
-console.log(graph.node.get(3).coordinate);
+*/
 
 /*Takes as input a list of node coordinates, and two nodes in that list
 Calculates the distance between the two nodes
@@ -66,185 +69,138 @@ function interPointDistance(positions, point1, point2){
     return dist;
 };
 
-/*
-These variables store stuff that will later be stored within the function that these subfunctions are called within
-will be deleted later...
+/*Takes as an input the list of node coordinates
+Generates a matrix of nodes in the graph (to be filled in with weights of edges between nodes)
+                    CREATES GLOBAL MATRIX
 */
 
-/*Takes as input list of node coordinates
-Set of 'listOf_blank_edges' functions together find the eges at the perimeter of the generated quasi-grid
-This function finds a list of edges at the right boundary of the graph
-*/
-function listOfLeftEdges(coordinateList){
-    var leftList = [];
-    for(var j = 0; j < coordinateList.length; j++){
-        if (coordinateList[j][0] == 0 && coordinateList[j+1][0] == 0){
-        var edge = [j,j+1];
-        leftList.push(edge);
+function matrixGenerator(){
+    var arrayLength = coordinates.length;
+    var Matrix = [];
+    for(var i = 0; i < arrayLength; i++ ){
+        Matrix[i] = []
+        for(var j = 0; j < arrayLength; j++){
+            Matrix[i][j] = j;
         };
     };
-    return leftList
+    
+    return Matrix
 };
-console.log('Left Edge');
-console.log(listOfLeftEdges(coordinates));
 
-/*Takes as input list of node coordinates
-Set of 'listOf_blank_edges' functions together find the eges at the perimeter of the generated quasi-grid
-This function finds a list of edges at the top boundary of the graph
+console.log("here it is");
+console.log(matrixGenerator());
+
+/*Takes as input a graph and the set of coordinates of that graph
+Fills the node matrix with the distance between each node
+                FILLS IN GLOBAL MATRIX (with distnace between all edges)
 */
-function listOfTopEdges(coordinateList){
-    var coordinateSpacing =listOfLeftEdges(coordinateList).length
-    //var startIndex = coordinateSpacing
-    var topList = [];
-    
-    for(var j = 0; j < coordinateList.length; j++){
-        //var space = j + coordinateSpacing
-        if(coordinateList[j][1] == coordinateSpacing){
-            var edge = [j,j+coordinateSpacing+1];
-            topList.push(edge);
-        
-        }
-    
+function nodeDistanceMatrix(G, coordinateList){
+    var matrix = matrixGenerator();
+    var nodeCoordinates = coordinateList;
+    var len = nodeCoordinates.length;
+    for(var i = 0; i < len; i++){
+        for(var j = 0; j < len; j++){
+            var dist = interPointDistance(nodeCoordinates, i, j);
+            matrix[i][j] = dist;
+        };
     };
-    topList.pop()
-    return topList
+    return matrix;
 };
-console.log('Top Edge');
-console.log(listOfTopEdges(coordinates));
 
+var weightMatrix = nodeDistanceMatrix(graph, coordinates);
+console.log('show me the money');
+console.log(weightMatrix);
 
-/*Takes as input list of node coordinates
-Set of 'listOf_blank_edges' functions together find the eges at the perimeter of the generated quasi-grid
-This function finds a list of edges at the bottom boundary of the graph
+var initialEdgeList = [[0, 1], [0, 2], [1, 3], [2, 3], [1,2]];
+console.log('edgeslist')
+console.log(initialEdgeList);
+/*Takes as an input a graph too add edges to & a list of edges to be added
+Adds edges with weight = distance between nodes
+    WEIGHT is accessed from the global node distance matrix
 */
-function listOfBottomEdges(coordinateList){
-    var coordinateSpacing = listOfLeftEdges(coordinateList).length;
-    var bottomList = [];
-    
-    for(var i = 0; i < coordinateList.length; i++){
-        if(coordinateList[i][1] == 0){
-            var edge = [i,i+coordinateSpacing+1];
-            bottomList.push(edge);
-        
-        }
-    
+function addEdge(G, edgeList){
+    for(var i =0; i < edgeList.length; i++){
+        var node1 = edgeList[i][0];
+        var node2 = edgeList[i][1];
+        var weight = weightMatrix[node1][node2];
+        edgeList[i].push(weight);
     };
-    bottomList.pop()
-    return bottomList
+    //for(var j =0; j < edgeList.length; j++);
+    G.addEdgesFrom(edgeList);
+    return G;
+};
+
+var trial = addEdge(graph, initialEdgeList);
+console.log('edge list with weight');
+console.log(initialEdgeList);
+
+var externalAdjMat = matrixGenerator();
+console.log(externalAdjMat);
+
+
+function adjacencyMatrix(edgeListWithWeights){
+    var adjacency = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+    for(var i = 0; i < edgeListWithWeights.length; i++){
+        var node1 = edgeListWithWeights[i][0];
+        var node2 = edgeListWithWeights[i][1];
+        var weight = edgeListWithWeights[i][2];
+        adjacency[node1][node2] = weight;
+    };     
+    
+    for(var i = 0; i < edgeListWithWeights.length; i++){
+        var node1 = edgeListWithWeights[i][0];
+        var node2 = edgeListWithWeights[i][1];
+        var weight = edgeListWithWeights[i][2];
+        adjacency[node2][node1] = weight;
+    };     
+    return adjacency;     
+};
+console.log('LOOK HERE');
+var grAph = adjacencyMatrix(initialEdgeList);
+console.log(grAph);
+console.log('');
+
+var secondaryEdgeList = [[0,1],[1,2],[0,2]];
+var edgeList2WithWeights =addEdge(graph, secondaryEdgeList);
+
+console.log('list');
+console.log(secondaryEdgeList);
+console.log('');
+var grAph2 = adjacencyMatrix(secondaryEdgeList);
+console.log('second');
+console.log(grAph2);
+console.log(grAph2[0][3]);
+
+function connected(edgeList, adjMatrix){
+    var x = 'string';
+    var y = 'string';
+    var z = 'string'; 
+    for(var i =0; i < edgeList.length; i++){
+        if(edgeList[i][2] == Math.sqrt(2)){
+            x = edgeList[i][0];
+            y = edgeList[i][1];
+            console.log(x + " xy " + y )
+        }
+    }
+    for(j=0; j < adjMatrix[x].length; j++){
+        if(adjMatrix[x][j] == 1){
+            console.log("z " + j)
+            z = j;
+        }
+    }
+
+    if(adjMatrix[y][z] == 1){
+        return false;
+    }
+return true;
 }
-console.log('Bottom Edge');
-console.log(listOfBottomEdges(coordinates));
-
-
-/*Takes as input list of node coordinates
-Set of 'listOf_blank_edges' functions together find the eges at the perimeter of the generated quasi-grid
-This function finds a list of edges at the right boundary of the graph
-ALSO checks to see if the eges along top boundary connect with edges along the bottom boundary, connecting the perimeter
-*/
-function listOfRightEdges(coordinateList){
-    //var coordinateSpacing =listOfLeftEdges(coordinateList).length
-    //var startIndex = coordinateSpacing  
-    var bottomListItems = listOfBottomEdges(coordinateList);
-    var topListitemsLength = bottomListItems.length;
-    var startPoint = bottomListItems[topListitemsLength - 1][1];
-    var rightList = [];
-
-    for(var j = startPoint; j < coordinateList.length-1; j++){
-        var edge = [j,j+1];
-        rightList.push(edge);
-        
-    
-    };
-    return rightList
-};
-console.log('Right Edge');
-console.log(listOfRightEdges(coordinates));
-
-/*Takes as input a list of node coordinates
-Checks to see if the edges at the top bounary of the graph connect to the edges at the right edge of the graph,
-If they don't connect, this function will connect them
-*/
-function checkPerimeterConnection(coordinateList){
-    var leftListItems = listOfLeftEdges(coordinateList);
-    var leftListItemsLength = leftListItems.length;
-    var topListItems = listOfTopEdges(coordinateList);
-    var topListItemsLength = topListItems.length;
-    var endpointOfFinalEdgeTop = topListItems[topListItemsLength-1][1];
-    var rightListItems = listOfRightEdges(coordinateList);
-    var rightListItemsLength = rightListItems.length;
-    var bottomListItems = listOfBottomEdges(coordinateList);
-    var bottomListItemsLength = bottomListItems.length;
-    //var endpointOfFinalEdgeRight = rightListItems[rightListItemsLength-1][1];
-    var connection = []
-
-    if(rightListItemsLength < 1 && leftListItemsLength >1){
-        var edge = [bottomListItems[bottomListItemsLength-1][1], endpointOfFinalEdgeTop];
-        
-
-        connection.push(edge);
-        return connection;
-    };
-
-    if(endpointOfFinalEdgeTop != endpointOfFinalEdgeRight){
-        var endpointOfFinalEdgeRight = rightListItems[rightListItemsLength-1][1];
-        var edge = [endpointOfFinalEdgeTop, endpointOfFinalEdgeRight];
-        connection.push(edge);
-        return connection;
-    };
-    
-};
-console.log('connecting edge')
-console.log(checkPerimeterConnection(coordinates));
-
-
-/*
-Takes as input a graph, & a matrix containging the distance from any point to any other point in that graph
-Evaluates the distance between perimeter nodes in the graph, adds edges between those nodes with their distance as the node weight
-*/
-function addInitialEdges(G, distances){
-    var nodeList = G.nodes();
-    var nodeCoordinates = new Array(nodeList.length);
-    for(var i = 0; i < nodeList.length; i++){
-        var coord = G.node.get(i).coordinate;
-        nodeCoordinates[i] = coord;   
-    };
-    
-    var edgeWeight = distances;
-    var leftList = [];
-    
-
-    var topList = [];
-    for(var j = 0; j < nodeCoordinates.length; j++){
-        if (nodeCoordinates[j][0] == 0 && nodeCoordinates[j+1][0] == 0){
-        var edge = [j,j+1];
-        leftList.push(edge);
-        };
-    };
-    return leftList
-    
-
-    //return leftList
-    
-    
-    /*
-    G.addWeightedEdgesFrom([0,1,zeroToOne]);
-    G.addWeightedEdgesFrom([0,2,zeroToTwo]);
-    G.addWeightedEdgesFrom([1,3,OneToThree]);
-    G.addWeightedEdgesFrom([3,2,threeToTwo]);
-    */
-};
-var show = addInitialEdges(graph);
-console.log('result');
-console.log(show);
 
 
 
 
-/*
-var F = jsnx.completeGraph(6);
-console.log('another graph');
-console.log(F);
-*/
+var connectresult = connected(secondaryEdgeList, grAph2);
+console.log(connectresult);
+
 
 
 
@@ -252,8 +208,13 @@ module.exports = {
     interPointDistance, 
     graphGen, 
     nodeCoords,
-    listOfLeftEdges,
-    listOfTopEdges,
-    listOfBottomEdges,
-    checkPerimeterConnection
+    //listOfLeftEdges,
+    //listOfTopEdges,
+    //listOfBottomEdges,
+    //checkPerimeterConnection,
+    matrixGenerator,
+    nodeDistanceMatrix,
+    addEdge,
+    adjacencyMatrix,
+    connected
 }

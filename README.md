@@ -1,6 +1,8 @@
 # practice1 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
 > creating a package to make sure I can add projects successfully to Travis &amp; coveralls
 
+[![Coverage Status](https://coveralls.io/repos/github/ConnorCox1996/Markov-Chain-Monte-Carlo/badge.svg?branch=master)](https://coveralls.io/github/ConnorCox1996/Markov-Chain-Monte-Carlo?branch=master)
+
 ## Installation
 
 ```sh

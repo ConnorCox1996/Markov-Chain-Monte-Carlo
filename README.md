@@ -25,6 +25,6 @@ MIT © [ConnorCox1996]()
 [travis-url]: https://travis-ci.org/ConnorCox1996/practice1
 [daviddm-image]: https://david-dm.org/ConnorCox1996/practice1.svg?theme=shields.io
 [daviddm-url]: https://david-dm.org/ConnorCox1996/practice1
-[coveralls-image]: https://coveralls.io/repos/ConnorCox1996/practice1/badge.svg
-[coveralls-url]: https://coveralls.io/r/ConnorCox1996/practice1
+#[coveralls-image]: https://coveralls.io/repos/ConnorCox1996/practice1/badge.svg
+#[coveralls-url]: https://coveralls.io/r/ConnorCox1996/practice1
 [![Coverage Status](https://coveralls.io/repos/github/ConnorCox1996/Markov-Chain-Monte-Carlo/badge.svg?branch=master)](https://coveralls.io/github/ConnorCox1996/Markov-Chain-Monte-Carlo?branch=master)

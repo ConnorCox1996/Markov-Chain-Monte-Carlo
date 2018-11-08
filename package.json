@@ -2,9 +2,11 @@
   "name": "j_script_practice",
   "version": "1.0.0",
   "description": "simple app for testing",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "mocha || true"
+    "test": "mocha",
+    "cover": "istanbul cover _mocha",
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",
@@ -18,7 +20,10 @@
   "homepage": "https://github.com/ConnorCox1996/practice1#readme",
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^5.2.0"
+    "coveralls": "^3.0.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
+    "mocha-lcov-reporter": "^1.3.0"
   },
   "dependencies": {
     "jsnetworkx": "^0.3.4"

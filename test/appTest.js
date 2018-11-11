@@ -21,6 +21,9 @@ const sourceTargetPath = require('../app').sourceTargetPath
 const edgeWeightSum = require('../app').edgeWeightSum
 const q = require('../app').q
 const theta = require('../app').theta
+const generateNewGraph = require('../app').generateNewGraph
+const piJI = require('../app').piJI
+const acceptOrReject = require('../app').acceptOrReject
 
 describe('nodeCoords', function(){
     it('nodeCoords takes an input M, and generates the coordinates a quasi-grid of M nodes', function(){
@@ -49,24 +52,6 @@ describe('interPointDistance', function(){
         assert.equal(dist3, 0);
     });    
 });
-/*
-need to come back to this...
-*/
-/*
-describe('graphGen', function(){
-    it('graphGen takes, as an input, the nu', function(){
-        var nodes = [[0, 0], [0, 5], [1, 1]];
-        var graph = graphGen(nodes);
-        var nodeList= graph.nodes();
-        var coord1 = graph.node.get(1).coordinate;
-        var expectedNodeList = [0, 1, 2];
-        
-        assert.equal(nodeList.length, nodes.length);
-        assert.deepEqual(expectedNodeList, nodeList);
-        assert.equal(coord1, nodes[1]);      
-    });
-});
-*/
 
 describe('matrixGenerator', function(){
     it('matrixGenerator takes as an input a list of node coordinates, and makes a matrix of those nodes', function(){
@@ -210,6 +195,50 @@ describe('theta', function(){
         assert.equal(expect2, result2);
         assert.equal(expect3, result3);
 
+    });
+});
+
+describe('generateNewGraph', function(){
+    it('generateNewGraph generates a new graph randomly by selecting a random number of eges which the graph will contain, and randomly selects those unique edge from a list of all possible edges preventing edge duplication', function(){
+        var listOfPossibleEdges = [[0, 1], [0, 2], [0, 3], [1, 3], [1, 2], [3, 2]];
+        result = generateNewGraph();
+        
+        expect(result).to.be.an('array');
+        expect(result.length).to.be.at.least(3);
+        expect(result.length).to.be.at.most(6);
+    });
+});
+
+describe('piJI', function(){
+    it('piJI calculates theta values for two graphs, and computes pi(j)/pi(i) for the two graphs', function(){
+        var edgeList1 = [[0,1,1],[0,2,1],[1,3,1],[2,3,1],[0,3, Math.sqrt(2)]];
+        var edgeList2 = [[0,1,1],[0,2,1],[1,3,1],[2,3,1],[0,3, Math.sqrt(2)],[1,2, Math.sqrt(2)]];
+        var result = piJI(edgeList1, edgeList2);
+        var result2 = piJI(edgeList2, edgeList1);
+
+        assert.equal(result, 4.113250378782923);
+        assert.equal(result2, 0.24311673443421444);
+
+    });
+});
+
+describe('acceptOrReject', function(){
+    it('acceptOrReject takes two graphs as inputs, a current state and a proposed state, and determines whether to accept or reject the proposed state via the Metropolis-Hastings algorithm', function(){
+        var mocklist = [[0,1,1],[0,2,1], [1,3,1]];
+        var mocklist2 = [[0,1,1],[0,2,1],[1,3,1],[2,3, 1]];
+        var result = acceptOrReject(mocklist, mocklist2);
+        var pi = piJI(mocklist2, mocklist);
+        var qj = q(mocklist2);
+        var qi = q(mocklist);
+        var qRatio = qj/qi;
+        var proposal = pi * qRatio;
+
+        if(proposal >= 1){
+            expect(result[0]).to.equal(1);
+        };
+        if(proposal < 1){
+            expect(result[0]).to.be.greaterThan(1);
+        };         
     });
 });
 

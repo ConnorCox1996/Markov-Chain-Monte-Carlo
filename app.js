@@ -123,7 +123,7 @@ function adjacencyMatrix(edgeListWithWeights){
     return adjacency;     
 };
 console.log('initial Adj Mat');
-var initialGraphAdjacencyMatrix = adjacencyMatrix(initialEdgesWithWeights);
+var initialGraphAdjacencyMatrix = adjacencyMatrix(initialEdgeList);
 console.log(initialGraphAdjacencyMatrix);
 console.log('');
 
@@ -158,14 +158,45 @@ return true;
 
 /* Takes as an input upper and lower bounds for a generated number
   Returns a random integer between min (inclusive) and max (inclusive)
-  Using Math.round() gives a non-uniform distribution
  */
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-/*
-*/
+var listOfPossibleEdges = [[0, 1], [0, 2], [0, 3], [1, 3], [1, 2], [3, 2]];
+
+function generateNewGraph(){
+    var numEdges = getRandomInt(3,6);
+    console.log('number of edges in graph');
+    console.log(numEdges);
+    var newEdgeList = [];
+    for( var i = 0; i < 100; i++){
+        var addEdge = getRandomInt(0,5);
+        if(isInArray(addEdge, newEdgeList) == false){
+            newEdgeList.push(addEdge);    
+        };
+        if(newEdgeList.length ==numEdges){
+            
+            for(var j =0; j < numEdges; j++){
+                var generatedEdge = newEdgeList[j];
+                newEdgeList[j] = listOfPossibleEdges[generatedEdge];
+            
+            };
+            
+            return newEdgeList;
+        }
+    
+    };
+    
+};
+var ex1 = generateNewGraph();
+var ex2 = generateNewGraph();
+console.log('generatedGraphs');
+console.log(ex1);
+console.log(ex1.length);
+console.log(ex2);
+console.log(ex2.length);
+
 function isInArray(value, array){
     return array.indexOf(value) > -1;
 };
@@ -227,7 +258,7 @@ console.log('theta');
 console.log(mockresult)
 
 
-var listOfPossibleEdges = [[0, 1], [0, 2], [0, 3], [1, 3], [1, 2], [3, 2]];
+
 var factorials = [0, 1, 2, 6, 24, 120, 720];
 
 function q(edgeList){
@@ -243,6 +274,54 @@ function q(edgeList){
 
     return q
 };
+
+function piJI(graphOne, graphTwo){
+    var T = 1;
+    var diff = theta(graphOne) - theta(graphTwo);
+    var exponent = -(diff/T);
+    var resultpi = Math.exp(exponent);
+    return resultpi;
+};
+
+var graphOne = [[0,1,1],[0,2,1],[,3,1][2,3,1]];
+var graphTwo = [[0,1,1],[0,2,1],[1,3,1],[2,3,1],[0,3, Math.sqrt(2)]];
+
+var mocklist = [[0,1,1],[0,2,1], [1,3,1]];
+console.log(theta(mocklist));
+var mocklist2 = [[0,1,1],[0,2,1],[1,3,1],[2,3, 1]];
+console.log(theta(mocklist2));
+
+var tester = piJI(mocklist, mocklist2);
+console.log('pi result')
+console.log(tester);
+
+/*takes as input two graphs as an ordered pair, where current graph is first & proposed graph is second
+*/
+function acceptOrReject(graphOne, graphTwo){
+    var pi = piJI(graphTwo, graphOne);
+    var qj = q(graphTwo);
+    var qi = q(graphOne);
+    var qRatio = qj/qi;
+    var proposal = pi * qRatio;
+
+    if(proposal >= 1){
+        console.log('here 1')
+        return [1, true, 'A =>1'];
+    } else{
+        var u = getRandomInt(0,1);
+        if(u <= proposal){
+            console.log('here 2')
+            return [2, true, 'A < 1, but proposal => u'];
+        } else{
+            console.log('here 3')
+            return [3, false, 'A <1 & A < u']
+        };
+    };
+};
+console.log('accept');
+console.log(acceptOrReject(mocklist, mocklist2));
+
+
 
 
 
@@ -268,5 +347,8 @@ module.exports = {
     sourceTargetPath,
     edgeWeightSum,
     q,
-    theta
+    theta,
+    generateNewGraph,
+    piJI,
+    acceptOrReject
 }

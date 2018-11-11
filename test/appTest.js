@@ -7,6 +7,10 @@
 */
 const assert = require('chai').assert
 const expect = require('chai').expect
+const chai = require('chai');
+const chaiAlmost = require('chai-almost');
+chai.use(chaiAlmost());
+
 const jsnx = require('jsnetworkx')
 const interPointDistance = require('../app').interPointDistance
 const nodeCoords = require('../app').nodeCoords
@@ -216,8 +220,8 @@ describe('piJI', function(){
         var result = piJI(edgeList1, edgeList2);
         var result2 = piJI(edgeList2, edgeList1);
 
-        assert.equal(result, 4.113250378782923);
-        assert.equal(result2, 0.24311673443421444);
+        expect(result).to.be.almost.equal(4.113250378782923);
+        expect(result2).to.be.almost.equal(0.24311673443421443);
 
     });
 });

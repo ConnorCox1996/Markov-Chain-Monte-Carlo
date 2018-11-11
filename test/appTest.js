@@ -5,17 +5,22 @@
 
 -->NEED to add good comments into code
 */
-const assert = require('chai').assert;
+const assert = require('chai').assert
+const expect = require('chai').expect
 const jsnx = require('jsnetworkx')
 const interPointDistance = require('../app').interPointDistance
-const graphGen = require('../app').graphGen
 const nodeCoords = require('../app').nodeCoords
 const matrixGenerator = require('../app').matrixGenerator
 const nodeDistanceMatrix = require('../app').nodeDistanceMatrix
 const addEdge = require('../app').addEdge
 const adjacencyMatrix = require('../app').adjacencyMatrix
 const connected = require('../app').connected
-
+const getRandomInt = require('../app').getRandomInt
+const isInArray = require('../app').isInArray
+const sourceTargetPath = require('../app').sourceTargetPath
+const edgeWeightSum = require('../app').edgeWeightSum
+const q = require('../app').q
+const theta = require('../app').theta
 
 describe('nodeCoords', function(){
     it('nodeCoords takes an input M, and generates the coordinates a quasi-grid of M nodes', function(){
@@ -47,6 +52,7 @@ describe('interPointDistance', function(){
 /*
 need to come back to this...
 */
+/*
 describe('graphGen', function(){
     it('graphGen takes, as an input, the nu', function(){
         var nodes = [[0, 0], [0, 5], [1, 1]];
@@ -60,6 +66,7 @@ describe('graphGen', function(){
         assert.equal(coord1, nodes[1]);      
     });
 });
+*/
 
 describe('matrixGenerator', function(){
     it('matrixGenerator takes as an input a list of node coordinates, and makes a matrix of those nodes', function(){
@@ -72,9 +79,9 @@ describe('matrixGenerator', function(){
 
 describe('nodeDistanceMatrix', function(){
     it('nodeDistanceMatrix takes as an input a graph, and the set of node coordinates associated with that graph, it calculates the distance between all nodes in the graph and stores them in a matrix', function(){
-        var graph = [0, 1, 2, 3];
+        //var graph = [0, 1, 2, 3];
         var coords = [[0, 0], [0, 1], [1, 0], [1, 1]];
-        var matrix = nodeDistanceMatrix(graph, coords);
+        var matrix = nodeDistanceMatrix(coords);
         var columnOneExpected = [0, 1, 1, Math.sqrt(2)];
 
         assert.deepEqual(columnOneExpected, matrix[0]);
@@ -85,10 +92,10 @@ describe('addEdge', function(){
     it('addEdge takes as an input a graph which edges will be added to & a list of edge to be added', function(){
         var weightMatrix = [ [ 0, 1, 1, 1.4142135623730951 ], [ 1, 0, 1.4142135623730951, 1 ], [ 1, 1.4142135623730951, 0, 1 ], [ 1.4142135623730951, 1, 1, 0 ] ];
         var initialEdgeList = [[0, 1], [0, 2], [1, 3], [2, 3], [1,2]];
-        var unalteredEdgelist = [[0, 1], [0, 2], [1, 3], [2, 3], [1,2]];
+        var unalteredEdgelist = [[0, 1, 1], [0, 2, 1], [1, 2, Math.sqrt(2)], [2, 3, 1], [1, 3, 1]];
         var G = new jsnx.Graph();
-        var result = addEdge(G, initialEdgeList);
-        var edges = G.edges();
+        var result = addEdge(initialEdgeList);
+        var edges = initialEdgeList;
         
         assert.equal(weightMatrix[0][3], Math.sqrt(2));        
         assert.equal(weightMatrix[1][3], 1);
@@ -98,8 +105,8 @@ describe('addEdge', function(){
         assert.deepEqual(edges[0], unalteredEdgelist[0]);
         assert.deepEqual(edges[1], unalteredEdgelist[1]);
         assert.deepEqual(edges[2], unalteredEdgelist[4]);
-        assert.deepEqual(edges[3], unalteredEdgelist[2]);
-        assert.deepEqual(edges[4], unalteredEdgelist[3]);        
+        assert.deepEqual(edges[3], unalteredEdgelist[3]);
+        assert.deepEqual(edges[4], unalteredEdgelist[2]);        
         
     });
 });
@@ -132,3 +139,77 @@ describe('connected', function(){
 
     });
 });
+
+describe('getRandomInt', function(){
+    it('getRandomInt generates a random integer between lower & upper bounds (inclusive)', function(){
+        var random = getRandomInt(4,6);
+        
+        assert.isNumber(random);
+        expect(random).to.be.at.least(4);
+        expect(random).to.be.at.most(6);
+    });
+});
+
+describe('isInArray', function(){
+    it('isInArray checks if a specified value is contained in a specified array', function(){
+        var array = [0,1,2,3];
+        var notInArray = isInArray(10, array);
+        var inArray = isInArray(2,array);
+
+        expect(notInArray).to.be.false;
+        expect(inArray).to.be.true;
+    });
+});
+
+describe('sourceTargetPath', function(){
+    it('sourceTargetPath specifies node 0 as the source node, and finds the sum of the weighted path to all other nodes in the graph', function(){
+        var stronglyConnectedGraphEdges = [[0, 1, 1], [0, 2, 1], [0, 3, Math.sqrt(2)], [1, 3, 1], [1, 2, Math.sqrt(2)], [3, 2, 1]];
+        var resultStronglyConnected = sourceTargetPath(stronglyConnectedGraphEdges);        
+        var expectedResultStronglyConnected = 1+1+Math.sqrt(2);        
+        assert.equal(expectedResultStronglyConnected, resultStronglyConnected);       
+    });
+});
+
+describe('edgeWeightSum', function(){
+    it('edgeWeightSum finds the sum of all weighted edges in a graph', function(){
+        var stronglyConnectedGraphEdges = [[0, 1, 1], [0, 2, 1], [0, 3, Math.sqrt(2)], [1, 3, 1], [1, 2, Math.sqrt(2)], [3, 2, 1]];
+        var result = edgeWeightSum(stronglyConnectedGraphEdges);
+        var expectedResult = 1+1+1+1+Math.sqrt(2)+Math.sqrt(2);
+
+        assert.equal(result, expectedResult);
+    });
+});
+
+describe('q', function(){
+    it('q calculates the probability of a graph being generated from all possible new graph generations', function(){
+        var list1 = [[0, 1], [0, 2], [0, 3], [1, 3], [1, 2], [2, 3]];
+        var list2 = [[0, 1], [0, 2], [0, 3]];
+        var qExpectation1 = 1/4
+        var qExpectation2 = 1/80
+        var list1Result = q(list1);
+        var list2Result = q(list2);
+
+        assert.equal(qExpectation1, list1Result);
+        assert.equal(qExpectation2, list2Result);
+    });
+});
+
+describe('theta', function(){
+    it('theta calculates a theta value for a given graph, source node, and r value', function(){
+        var list1 = [[0,1,1],[0,2,1],[0,3, Math.sqrt(2)]];
+        var list2 =  [[0,1,1],[0,2,1],[1,3,1],[2,3,1]];
+        var list3 =  [[0,1,1],[0,2,1],[1,3,1],[2,3,1],[0,3, Math.sqrt(2)]];
+        var expect1 = 4+ 2*Math.sqrt(2);
+        var expect2 = 8;
+        var expect3 = 6 + 2*Math.sqrt(2);
+        var result1 = theta(list1);
+        var result2 = theta(list2);
+        var result3 = theta(list3);
+
+        assert.equal(expect1, result1);
+        assert.equal(expect2, result2);
+        assert.equal(expect3, result3);
+
+    });
+});
+

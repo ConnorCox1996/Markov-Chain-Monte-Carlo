@@ -98,8 +98,10 @@ function addEdge(edgeList){
 };
 
 var initialEdgesWithWeights = addEdge(initialEdgeList);
+/*
 console.log('initial edge list with weight');
 console.log(initialEdgeList);
+*/
 
 /*Takes as input a list of edges with weights
 Calculates the distance between the endpoints of the edge, and adds as a weight
@@ -122,39 +124,48 @@ function adjacencyMatrix(edgeListWithWeights){
     };     
     return adjacency;     
 };
+/*
 console.log('initial Adj Mat');
 var initialGraphAdjacencyMatrix = adjacencyMatrix(initialEdgeList);
 console.log(initialGraphAdjacencyMatrix);
 console.log('');
-
+*/
+/*
 var secondaryEdgeList = [[0,1],[1,2],[0,2]];
 var edgeList2WithWeights =addEdge(secondaryEdgeList);
+*/
 /*Takes as input a list of weighted edges and the adjacency matrix associated with that list of edges
 Determines if the graph associated with the list of egdes is connected or not
 if CONNECTED returns true
 if NOT CONNECTED returns false 
 */
 function connected(edgeList, adjMatrix){
-    var adjMatrix = adjMatrix;
-    var x = 'string';
-    var y = 'string';
-    var z = 'string'; 
-    for(var i =0; i < edgeList.length; i++){
-        if(edgeList[i][2] == Math.sqrt(2)){
-            x = edgeList[i][0];
-            y = edgeList[i][1];
+    var store = [[],[],[],[]];
+    if(edgeList.length == 3){
+        for(var i = 0; i < adjMatrix.length; i++){
+            for(var j = 0; j < adjMatrix.length; j++){
+                if(adjMatrix[i][j] == 0){
+                    store[i].push(0);
+                    if(store[i].length ==4){
+                        return 0;
+                    };
+                };
+            };
         };
-    };
-    for(j=0; j < adjMatrix[x].length; j++){
-        if(adjMatrix[x][j] == 1){
-            z = j;
-        };
-    };
-    if(adjMatrix[y][z] == 1){
-        return false;
-    };
-return true;
+        return 1;
+        
+    } else{
+        return 1;
+    };   
 };
+    
+/*
+console.log('HERE IS THEEEEEconnectedness checker');
+var edges = [[0,2,1],[0,1,1],[2,2,Math.sqrt(2)],[2,3,1]];
+var AM = adjacencyMatrix(edges);
+console.log(connected(edges, AM));
+*/
+
 
 /* Takes as an input upper and lower bounds for a generated number
   Returns a random integer between min (inclusive) and max (inclusive)
@@ -167,8 +178,8 @@ var listOfPossibleEdges = [[0, 1], [0, 2], [0, 3], [1, 3], [1, 2], [3, 2]];
 
 function generateNewGraph(){
     var numEdges = getRandomInt(3,6);
-    console.log('number of edges in graph');
-    console.log(numEdges);
+    //console.log('number of edges in graph');
+    //console.log(numEdges);
     var newEdgeList = [];
     for( var i = 0; i < 100; i++){
         var addEdge = getRandomInt(0,5);
@@ -189,6 +200,7 @@ function generateNewGraph(){
     };
     
 };
+/*
 var ex1 = generateNewGraph();
 var ex2 = generateNewGraph();
 console.log('generatedGraphs');
@@ -196,6 +208,7 @@ console.log(ex1);
 console.log(ex1.length);
 console.log(ex2);
 console.log(ex2.length);
+*/
 
 function isInArray(value, array){
     return array.indexOf(value) > -1;
@@ -321,8 +334,59 @@ function acceptOrReject(graphOne, graphTwo){
 console.log('accept');
 console.log(acceptOrReject(mocklist, mocklist2));
 
+function main(iterations){
+    var hold = [[],[]];
+    var save = [];
+    var X0 = initialEdgesWithWeights;
+    var thetaX0 = theta(initialEdgesWithWeights);
+    console.log('THETA 0');
+    console.log(thetaX0);
+    hold[0][0] = X0;
+    var qX0 = q(initialEdgesWithWeights);
+    hold[0][1] = qX0;
 
+    for(var i =0; i < iterations; i++){
+        var proposal = generateNewGraph();
+        var weightedEdgeListi = addEdge(proposal);
+        var adjacMatrix = adjacencyMatrix(proposal);
+        var connection = connected(weightedEdgeListi,adjacMatrix);
+        if(connection == true){
+            console.log('EDGES success');
+            console.log(weightedEdgeListi);
+            var thetai = theta(weightedEdgeListi);
+            console.log('THETA 1');
+            console.log(thetai);
+            hold[1][0] = proposal;
+            var qXi = q(weightedEdgeListi);
+            hold[1][1] = qXi;
+            var acc = acceptOrReject(hold[0][0], hold[1][0]);
+            console.log('ACC')
+            console.log(acc);
+                if(acc[1] == true){
+                    hold[0][0] = proposal;
+                    var output = adjacencyMatrix(proposal);
+                    for(var k=0; k < output.length; k++){
+                        for(var l =0; l < output.length; l++){
+                            if(output[k][l] != 0){
+                                output[k][l] = 1;
 
+                            }
+                        }
+                    }
+                    save[i] = output;
+                        
+                }else{
+                console.log('EDGES fail connection');
+                console.log(weightedEdgeListi);
+            };
+        };          
+    };
+return save;
+};
+
+console.log('README');
+console.log('the big finish');
+console.log(main(2));
 
 
 

@@ -4,7 +4,7 @@
 ## Installation
 
 ```sh
-$ npm install --save practice1
+$ npm install --save Markov-Chain-Monte-Carlo
 ```
 
 ## Usage

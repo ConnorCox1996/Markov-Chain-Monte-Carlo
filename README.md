@@ -26,6 +26,7 @@ The program runs through user specified iterations, comparing the current graph 
 ## Installation
 
 ```sh
+$ git clone https://github.com/ConnorCox1996/Markov-Chain-Monte-Carlo.git
 $ npm install --save Markov-Chain-Monte-Carlo
 ```
 

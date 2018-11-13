@@ -364,7 +364,7 @@ function main(iterations){
     return 'done';
 };
 
-var run = main(100);
+var run = main(1000);
 console.log(run);
 
 

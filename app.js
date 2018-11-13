@@ -89,10 +89,7 @@ function addEdge(edgeList){
 
 //adding weight to initial graph edges 
 var initialEdgesWithWeights = addEdge(initialEdgeList);
-/*
-console.log('initial edge list with weight');
-console.log(initialEdgeList);
-*/
+
 
 /*Takes as input a list of edges with weights
 Calculates the distance between the endpoints of the edge, and adds as a weight
@@ -205,7 +202,6 @@ function sourceTargetPath(edgelistWithWeight){
                     var stepWeight = targetsReached[m]
                     targetList[j] = matrix[source][j];
                     targetsReached.push(matrix[m][j]+stepWeight);                            
-                    //console.log(targetsReached);
                     if(targetsReached.length == matrix.length){
                         var sumOfPathsFromSource = 0;
                         for( var s= 0; s < targetsReached.length; s++){
@@ -218,6 +214,7 @@ function sourceTargetPath(edgelistWithWeight){
         };
     };   
 };
+
 
 /*Takes as an input a list of weighted edges
 Calculates the sum of all weighted edges in the graph
@@ -331,9 +328,10 @@ function main(iterations){
             hold[1][1] = qXi;
             var acc = acceptOrReject(hold[0][0], hold[1][0]);
 
-                if(acc[1] == true){
+                if(acc[1] == true && i <iterations){
                     hold[0][0] = proposal;
-                    console.log('proposal' + ' ' + i + ' ' + 'accepted: ');
+                    console.log('iteration # ' + i);
+                    console.log('adjacency matrix current state');
                     console.log('');
                     storeEdges[i] = proposal.length;
                     var output = adjacencyMatrix(proposal);
@@ -349,23 +347,25 @@ function main(iterations){
                         }
                     }   
                 var save1 =save.join('');
-                var save2 = parseInt(save1,2);
-        store[i]=save2
+                //var save2 = parseInt(save1,2);
+        //store[i]=save2
                         
                 }else{
-                    console.log('proposal ' + i + ' rejected');
-                    storeEdges[i] = hold[0][0].length;
+                    if(i < 100){
+                        console.log('iteration # ' + i);
+                        console.log('proposal rejected');
+                        storeEdges[i] = hold[0][0].length;
+                    }
 
             };
         };
 
     };
-    return;
+    return 'done';
 };
 
 var run = main(100);
 console.log(run);
-
 
 
 

@@ -1,5 +1,5 @@
-# practice1 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
-> creating a package to make sure I can add projects successfully to Travis &amp; coveralls
+# MCMC [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
+> Markov chain Monte Carlo
 
 ## Installation
 
@@ -10,9 +10,9 @@ $ npm install --save Markov-Chain-Monte-Carlo
 ## Usage
 
 ```js
-const practice1 = require('practice1');
+node app.js;
 
-practice1('Rainbow');
+Markov chain Monte Carlo('Rainbow');
 ```
 ## License
 
